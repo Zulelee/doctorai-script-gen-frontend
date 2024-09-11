@@ -77,7 +77,7 @@ export default function ScriptGenerator() {
       await simulateLoading("Researching...", 4000);
 
       const response = await fetch(
-        "https://fastapi-sql-production.up.railway.app/users/execute_agent_teams",
+        process.env.NEXT_PUBLIC_BACKEND + "/users/execute_agent_teams",
         {
           method: "POST",
           headers: {
@@ -106,7 +106,7 @@ export default function ScriptGenerator() {
       await simulateLoading("Generating output...", 5000);
 
       const response = await fetch(
-        "https://fastapi-sql-production.up.railway.app/users/generate_script",
+        process.env.NEXT_PUBLIC_BACKEND + "/users/generate_script",
         {
           method: "POST",
           headers: {
@@ -158,16 +158,6 @@ export default function ScriptGenerator() {
           AI Script Generator
         </h1>
       </header>
-
-      {/* Loading GIF iframe */}
-      {loading && (
-        <div className="flex justify-center mb-8">
-          <iframe
-            src="https://lottie.host/embed/08ed115d-6973-431c-a817-03e3f21bdf7d/EudjIx1UlY.json"
-            style={{ width: "300px", height: "300px", border: "none" }}
-          ></iframe>
-        </div>
-      )}
 
       <div className="max-w-2xl mx-auto mb-8 bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
