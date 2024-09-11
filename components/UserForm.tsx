@@ -1,6 +1,10 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import Image from "next/image";
+import { Copy } from "lucide-react";
+import Link from "next/link";
 
 interface FinalResult {
   final_script: {
@@ -9,32 +13,46 @@ interface FinalResult {
   };
 }
 
-export default function Home() {
+export default function ScriptGenerator() {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState("");
   const [setI, setSetI] = useState<string | null>(null);
   const [setII, setSetII] = useState<string | null>(null);
   const [setIII, setSetIII] = useState<string | null>(null);
   const [selectedSet, setSelectedSet] = useState<string | null>(null);
   const [researchResult, setResearchResult] = useState<string | null>(null);
   const [finalResult, setFinalResult] = useState<FinalResult | null>(null);
+  const [activeTab, setActiveTab] = useState("script");
+  const [timer, setTimer] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (loading) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer + 0.1);
+      }, 100);
+    } else if (!loading && timer !== 0) {
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loading, timer]);
 
   const parseMarkdownSets = (markdown: string) => {
-    // Updated regex to capture content between the sets, without including '**'
     const regex =
       /Set I:[\s\S]*?(?=Set II:|Set III:|\Z)|Set II:[\s\S]*?(?=Set III:|\Z)|Set III:[\s\S]*/g;
-
-    // Matching content between the Set markers
     const matches = markdown.match(regex);
 
     if (matches && matches.length >= 3) {
-      setSetI(matches[0].replace(/Set I:/, "").trim()); // Remove "Set I:" and trim any extra spaces
-      setSetII(matches[1].replace(/Set II:/, "").trim()); // Remove "Set II:" and trim any extra spaces
-      setSetIII(matches[2].replace(/Set III:/, "").trim()); // Remove "Set III:" and trim any extra spaces
+      setSetI(matches[0].replace(/Set I:/, "").trim());
+      setSetII(matches[1].replace(/Set II:/, "").trim());
+      setSetIII(matches[2].replace(/Set III:/, "").trim());
     } else if (matches && matches.length === 2) {
       setSetI(matches[0].replace(/Set I:/, "").trim());
       setSetII(matches[1].replace(/Set II:/, "").trim());
-      setSetIII(""); // Set III may be optional
+      setSetIII("");
     } else if (matches && matches.length === 1) {
       setSetI(matches[0].replace(/Set I:/, "").trim());
       setSetII("");
@@ -44,11 +62,20 @@ export default function Home() {
     }
   };
 
+  const simulateLoading = async (stage: string, duration: number) => {
+    setLoadingStage(stage);
+    await new Promise((resolve) => setTimeout(resolve, duration));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setTimer(0);
 
     try {
+      await simulateLoading("Ideating...", 3000);
+      await simulateLoading("Researching...", 4000);
+
       const response = await fetch(
         "https://fastapi-sql-production.up.railway.app/users/execute_agent_teams",
         {
@@ -67,12 +94,17 @@ export default function Home() {
       console.error("Error fetching ideation data:", error);
     } finally {
       setLoading(false);
+      setLoadingStage("");
     }
   };
 
   const handleGenerateScript = async () => {
     setLoading(true);
+    setTimer(0);
+
     try {
+      await simulateLoading("Generating output...", 5000);
+
       const response = await fetch(
         "https://fastapi-sql-production.up.railway.app/users/generate_script",
         {
@@ -93,47 +125,83 @@ export default function Home() {
       console.error("Error generating script:", error);
     } finally {
       setLoading(false);
+      setLoadingStage("");
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Copied to clipboard!");
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
-      <h1 className="text-4xl font-bold text-center text-gray-900 mb-6">
-        Script Generator
-      </h1>
-
-      {/* Input Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6 mb-6"
-      >
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="Enter your text"
-          required
-          className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white p-6 text-gray-900">
+      <div className="mb-5">
+        <Link
+          type="button"
+          href={"/chatbot"}
+          className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 m-5 mb-5"
         >
-          Submit
-        </button>
-      </form>
+          Brainstorming Chatbot
+        </Link>
+      </div>
+      <header className="flex items-center justify-center mb-8">
+        <Image
+          src="https://mcusercontent.com/68edd03c1700c1bdc714f04d5/images/d096c8ef-178b-741d-e81b-a3c9704a6dfd.png"
+          alt="Logo"
+          width={100}
+          height={100}
+          className="mr-4"
+        />
+        <h1 className="text-4xl font-bold text-center text-blue-900">
+          AI Script Generator
+        </h1>
+      </header>
 
-      {/* Display Ideation Data in Dropdown */}
+      {/* Loading GIF iframe */}
+      {loading && (
+        <div className="flex justify-center mb-8">
+          <iframe
+            src="https://lottie.host/embed/08ed115d-6973-431c-a817-03e3f21bdf7d/EudjIx1UlY.json"
+            style={{ width: "300px", height: "300px", border: "none" }}
+          ></iframe>
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto mb-8 bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-6">
+          <h2 className="text-2xl font-semibold mb-4">Generate Your Script</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Enter your topic or idea"
+              required
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className={`w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? loadingStage : "Generate Ideas"}
+            </button>
+          </form>
+        </div>
+      </div>
+
       {setI && setII && setIII && (
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Choose a Set:
-          </h2>
-          <div className="mb-6">
+        <div className="max-w-4xl mx-auto mb-8 bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold mb-4">Choose a Set</h2>
             <select
               value={selectedSet || ""}
               onChange={(e) => setSelectedSet(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="" disabled>
                 Select a Set
@@ -142,67 +210,117 @@ export default function Home() {
               <option value={setII}>Set II</option>
               <option value={setIII}>Set III</option>
             </select>
-          </div>
 
-          {/* Render the selected markdown content */}
-          {selectedSet && (
-            <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-              <ReactMarkdown>{selectedSet}</ReactMarkdown>
+            {selectedSet && (
+              <div className="mb-4 p-4 bg-gray-100 rounded-md relative">
+                <ReactMarkdown>{selectedSet}</ReactMarkdown>
+                <button
+                  onClick={() => copyToClipboard(selectedSet)}
+                  className="absolute bottom-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
+                  aria-label="Copy to clipboard"
+                >
+                  <Copy size={16} />
+                </button>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Research Result</h3>
+              <div className="p-4 bg-gray-100 rounded-md relative">
+                <ReactMarkdown>{researchResult}</ReactMarkdown>
+                <button
+                  onClick={() => copyToClipboard(researchResult || "")}
+                  className="absolute bottom-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
+                  aria-label="Copy to clipboard"
+                >
+                  <Copy size={16} />
+                </button>
+              </div>
             </div>
-          )}
 
-          <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">
-            Research Result:
-          </h3>
-          <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-            <ReactMarkdown>{researchResult}</ReactMarkdown>
+            <button
+              onClick={handleGenerateScript}
+              className={`w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? loadingStage : "Generate Script"}
+            </button>
           </div>
-
-          <button
-            onClick={handleGenerateScript}
-            className="mt-6 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
-          >
-            Generate Script
-          </button>
         </div>
       )}
-      {/* Loading Spinner */}
-      {loading && <p className="text-center text-indigo-600">Loading...</p>}
-      {/* Final Output */}
+
       {finalResult && finalResult.final_script && (
-        <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Generated Script
-          </h2>
-
-          {/* Final Script */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              Final Script:
-            </h3>
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <ReactMarkdown>
-                {finalResult.final_script.Scientific_Accuracy_Clarity_Guardian}
-              </ReactMarkdown>
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold mb-4">Generated Script</h2>
+            <div className="mb-4">
+              <div className="flex border-b">
+                <button
+                  className={`py-2 px-4 ${
+                    activeTab === "script"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab("script")}
+                >
+                  Final Script
+                </button>
+                <button
+                  className={`py-2 px-4 ${
+                    activeTab === "cta"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab("cta")}
+                >
+                  Call to Action
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Refined Call to Action */}
-          <div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              Refined Call to Action:
-            </h3>
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <ReactMarkdown>
-                {
-                  finalResult.final_script
-                    .Call_to_Action_Channel_Integration_Specialist
+            <div className="p-4 bg-gray-100 rounded-md relative">
+              {activeTab === "script" ? (
+                <ReactMarkdown>
+                  {
+                    finalResult.final_script
+                      .Scientific_Accuracy_Clarity_Guardian
+                  }
+                </ReactMarkdown>
+              ) : (
+                <ReactMarkdown>
+                  {
+                    finalResult.final_script
+                      .Call_to_Action_Channel_Integration_Specialist
+                  }
+                </ReactMarkdown>
+              )}
+              <button
+                onClick={() =>
+                  copyToClipboard(
+                    activeTab === "script"
+                      ? finalResult.final_script
+                          .Scientific_Accuracy_Clarity_Guardian
+                      : finalResult.final_script
+                          .Call_to_Action_Channel_Integration_Specialist
+                  )
                 }
-              </ReactMarkdown>
+                className="absolute bottom-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
+                aria-label="Copy to clipboard"
+              >
+                <Copy size={16} />
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Timer display */}
+      <div className="fixed bottom-4 right-4 bg-white p-2 rounded-md shadow-md">
+        <p className="text-sm font-semibold">
+          Time: {timer.toFixed(1)} seconds
+        </p>
+      </div>
     </div>
   );
 }
