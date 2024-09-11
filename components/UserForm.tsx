@@ -131,7 +131,7 @@ export default function ScriptGenerator() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert("Copied to clipboard!");
+      console.log("Copied to clipboard!");
     });
   };
 
