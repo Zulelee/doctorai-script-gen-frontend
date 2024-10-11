@@ -1,9 +1,9 @@
-import { UserForm } from "@/components";
+import { MainPage } from "@/components";
 
 export default function Home() {
   return (
     <>
-      <UserForm></UserForm>
+      <MainPage></MainPage>
     </>
   );
 }
