@@ -364,7 +364,8 @@ export default function ChatbotInterface() {
     }
 
     const scriptToModify = scripts[scriptIndex];
-    console.log(scriptToModify);
+    console.log("The script it");
+    console.log(scriptToModify.script);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND}/users/modify_script`,
