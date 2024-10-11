@@ -5,8 +5,7 @@ import {
   Copy,
   Check,
   Forward,
-  X,
-  ChevronRight,
+  Menu,
   Plus,
   User,
   Bot,
@@ -716,302 +715,629 @@ export default function ChatbotInterface() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar with chats */}
-      <div
-        className={`fixed inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ease-in-out ${
-          sidebarVisible ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-          <img
-            src="https://mcusercontent.com/68edd03c1700c1bdc714f04d5/images/d096c8ef-178b-741d-e81b-a3c9704a6dfd.png"
-            alt="Logo"
-            width={50}
-            height={50}
-            className="mr-4"
-          />
-          <h2 className="text-md font-semibold text-black">Script Generator</h2>
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-full hover:bg-gray-200 text-black"
-            aria-label="Close sidebar"
-          >
-            <X size={24} />
-          </button>
-        </div>
-        <div className="p-2">
-          <button
-            onClick={createNewChat}
-            className="w-full text-left p-2 rounded-lg mb-2 bg-blue-500 text-white hover:bg-blue-600 flex items-center"
-          >
-            <Plus size={20} className="mr-2" />
-            New Chat
-          </button>
-          {chats.map((chat) => (
-            <button
-              key={chat._id}
-              className={`w-full text-left p-2 rounded-lg mb-2 ${
-                selectedChat?._id === chat._id
-                  ? "bg-blue-100 text-black"
-                  : "hover:bg-gray-100 text-black"
-              }`}
-              onClick={() => selectChat(chat._id)}
-            >
-              <p className="font-medium truncate">
-                {chat.initial_message || "New Chat"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {formatTimestamp(chat.timestamp)}
-              </p>
-            </button>
-          ))}
-        </div>
+    // <div className="flex h-screen bg-gray-100">
+    //   {/* Sidebar with chats */}
+    //   <div
+    //     className={`fixed inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ease-in-out ${
+    //       sidebarVisible ? "translate-x-0" : "-translate-x-full"
+    //     }`}
+    //   >
+    //     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+    //       <img
+    //         src="https://mcusercontent.com/68edd03c1700c1bdc714f04d5/images/d096c8ef-178b-741d-e81b-a3c9704a6dfd.png"
+    //         alt="Logo"
+    //         width={50}
+    //         height={50}
+    //         className="mr-4"
+    //       />
+    //       <h2 className="text-md font-semibold text-black">Script Generator</h2>
+    //       <button
+    //         onClick={toggleSidebar}
+    //         className="p-2 rounded-full hover:bg-gray-200 text-black"
+    //         aria-label="Close sidebar"
+    //       >
+    //         <X size={24} />
+    //       </button>
+    //     </div>
+    //     <div className="p-2">
+    //       <button
+    //         onClick={createNewChat}
+    //         className="w-full text-left p-2 rounded-lg mb-2 bg-blue-500 text-white hover:bg-blue-600 flex items-center"
+    //       >
+    //         <Plus size={20} className="mr-2" />
+    //         New Chat
+    //       </button>
+    //       {chats.map((chat) => (
+    //         <button
+    //           key={chat._id}
+    //           className={`w-full text-left p-2 rounded-lg mb-2 ${
+    //             selectedChat?._id === chat._id
+    //               ? "bg-blue-100 text-black"
+    //               : "hover:bg-gray-100 text-black"
+    //           }`}
+    //           onClick={() => selectChat(chat._id)}
+    //         >
+    //           <p className="font-medium truncate">
+    //             {chat.initial_message || "New Chat"}
+    //           </p>
+    //           <p className="text-xs text-gray-500">
+    //             {formatTimestamp(chat.timestamp)}
+    //           </p>
+    //         </button>
+    //       ))}
+    //     </div>
+    //   </div>
+
+    //   {/* Chat interface */}
+    //   <div
+    //     className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
+    //       sidebarVisible ? "ml-64" : "ml-0"
+    //     }`}
+    //   >
+    //     {/* Top bar */}
+    //     <div
+    //       className={`h-14 flex items-center px-4 ${
+    //         sidebarVisible
+    //           ? "bg-transparent"
+    //           : "bg-white border-b border-gray-200"
+    //       }`}
+    //     >
+    //       {!sidebarVisible && (
+    //         <button
+    //           onClick={toggleSidebar}
+    //           className="p-2 rounded-full hover:bg-gray-200 text-black"
+    //           aria-label="Show sidebar"
+    //         >
+    //           <ChevronRight size={24} />
+    //         </button>
+    //       )}
+    //     </div>
+
+    //     {selectedChat ? (
+    //       <>
+    //         {/* Chat messages */}
+    //         <div className="flex-1 overflow-y-auto p-4">
+    //           {messages.map((message, index) => (
+    //             <div
+    //               key={index}
+    //               className={`mb-4 ${
+    //                 message.message_type === "user" ? "text-right" : "text-left"
+    //               }`}
+    //             >
+    //               <div
+    //                 className={`inline-block p-2 rounded-lg ${
+    //                   message.message_type === "user"
+    //                     ? "bg-blue-500 text-white"
+    //                     : message.message_type === "agent1"
+    //                       ? "bg-gray-300 text-black"
+    //                       : "bg-blue-100 text-black"
+    //                 }`}
+    //               >
+    //                 <div className="flex items-center mb-1">
+    //                   {message.message_type === "user" ? (
+    //                     <User size={16} className="mr-1" />
+    //                   ) : message.message_type === "agent1" ? (
+    //                     <Bot size={16} className="mr-1" />
+    //                   ) : (
+    //                     <Command size={16} className="mr-1" />
+    //                   )}
+    //                   <span className="text-xs">
+    //                     {formatTimestamp(message.timestamp)}
+    //                   </span>
+    //                 </div>
+    //                 {message.category === "script" ||
+    //                 message.category === "set" ? (
+    //                   <div>
+    //                     <button
+    //                       onClick={() => toggleExpand(message._id)}
+    //                       className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+    //                     >
+    //                       {expandedMessages[message._id]
+    //                         ? `Hide ${message.category === "script" ? "Script" : "Set"}`
+    //                         : `View ${message.category === "script" ? "Script" : "Set"}`}
+    //                     </button>
+    //                     {expandedMessages[message._id] && (
+    //                       <div className="mt-2 p-4 text-black">
+    //                         {message.category === "script" ? (
+    //                           <>
+    //                             <div className="flex mb-2">
+    //                               <button
+    //                                 className={`mr-2 px-2 py-1 rounded ${
+    //                                   activeTab === "initial_input"
+    //                                     ? "bg-blue-500 text-white"
+    //                                     : "bg-gray-200 text-black"
+    //                                 }`}
+    //                                 onClick={() =>
+    //                                   setActiveTab("initial_input")
+    //                                 }
+    //                               >
+    //                                 Initial Input
+    //                               </button>
+    //                               <button
+    //                                 className={`mr-2 px-2 py-1 rounded ${
+    //                                   activeTab === "script"
+    //                                     ? "bg-blue-500 text-white"
+    //                                     : "bg-gray-200 text-black"
+    //                                 }`}
+    //                                 onClick={() => setActiveTab("script")}
+    //                               >
+    //                                 Script
+    //                               </button>
+    //                               <button
+    //                                 className={`px-2 py-1 rounded ${
+    //                                   activeTab === "mr_beast_score"
+    //                                     ? "bg-blue-500 text-white"
+    //                                     : "bg-gray-200 text-black"
+    //                                 }`}
+    //                                 onClick={() =>
+    //                                   setActiveTab("mr_beast_score")
+    //                                 }
+    //                               >
+    //                                 Mr. Beast&aposs Evaluation
+    //                               </button>
+    //                               <button
+    //                                 className={`px-2 py-1 rounded ${
+    //                                   activeTab === "george_blackman_score"
+    //                                     ? "bg-blue-500 text-white"
+    //                                     : "bg-gray-200 text-black"
+    //                                 }`}
+    //                                 onClick={() =>
+    //                                   setActiveTab("george_blackman_score")
+    //                                 }
+    //                               >
+    //                                 George Blackman&aposs Evaluation
+    //                               </button>
+    //                             </div>
+    //                             {scripts.map((script) => {
+    //                               if (script.script === message.message) {
+    //                                 return (
+    //                                   <pre
+    //                                     key={script._id}
+    //                                     className="whitespace-pre-wrap font-sans"
+    //                                   >
+    //                                     {activeTab === "initial_input"
+    //                                       ? script.initial_input
+    //                                       : activeTab === "script"
+    //                                         ? script.script
+    //                                         : activeTab === "mr_beast_score"
+    //                                           ? script.mr_beast_score
+    //                                           : script.george_blackman_score}
+    //                                   </pre>
+    //                                 );
+    //                               }
+    //                               return null;
+    //                             })}
+    //                           </>
+    //                         ) : (
+    //                           <pre className="whitespace-pre-wrap font-sans">
+    //                             {message.message}
+    //                           </pre>
+    //                         )}
+    //                       </div>
+    //                     )}
+    //                   </div>
+    //                 ) : (
+    //                   <pre className="whitespace-pre-wrap font-sans">
+    //                     {message.message}
+    //                   </pre>
+    //                 )}
+    //               </div>
+    //               <br />
+    //               <button
+    //                 onClick={() => copyToClipboard(message.message, index)}
+    //                 className={`ml-2 p-1 text-gray-500 hover:text-gray-700 transition-all duration-300`}
+    //                 aria-label={
+    //                   copiedIndex === index
+    //                     ? "Copied to clipboard"
+    //                     : "Copy to clipboard"
+    //                 }
+    //               >
+    //                 {copiedIndex === index ? (
+    //                   <Check size={16} />
+    //                 ) : (
+    //                   <Copy size={16} />
+    //                 )}
+    //               </button>
+    //             </div>
+    //           ))}
+    //           {loading && (
+    //             <div className="text-left mb-4">
+    //               <div className="inline-block p-3 rounded-lg bg-gray-200">
+    //                 <LoadingAnimation />
+    //               </div>
+    //             </div>
+    //           )}
+    //           <div ref={messagesEndRef} />
+    //         </div>
+
+    //         {/* Command suggestions */}
+    //         <div className="border-t border-gray-200 p-2 bg-gray-50">
+    //           <p className="text-sm font-medium text-gray-700 mb-1">
+    //             Available commands:
+    //           </p>
+    //           <div className="flex flex-wrap gap-2">
+    //             {COMMANDS.map((cmd) => (
+    //               <button
+    //                 key={cmd.command}
+    //                 className="px-2 py-1 text-sm bg-white border border-gray-300 rounded-md text-black hover:bg-gray-100"
+    //                 onClick={() => setInputMessage(cmd.command)}
+    //                 title={cmd.description}
+    //               >
+    //                 {cmd.command}
+    //               </button>
+    //             ))}
+    //           </div>
+    //         </div>
+
+    //         {/* Input area */}
+    //         <form
+    //           onSubmit={handleSendMessage}
+    //           className="border-t border-gray-200 p-4"
+    //         >
+    //           <div className="flex items-top">
+    //             <textarea
+    //               ref={textareaRef}
+    //               value={inputMessage}
+    //               onChange={(e) => setInputMessage(e.target.value)}
+    //               onKeyDown={handleKeyDown}
+    //               placeholder="Type your message... (Shift+Enter for new line)"
+    //               className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none text-black resize-none overflow-hidden"
+    //               style={{ minHeight: "40px", maxHeight: "120px" }}
+    //               disabled={loading}
+    //               rows={1}
+    //             />
+    //             <button
+    //               type="submit"
+    //               className={`p-2 bg-blue-500 text-white rounded-r-md ${
+    //                 loading
+    //                   ? "opacity-50 cursor-not-allowed"
+    //                   : "hover:bg-blue-600"
+    //               }`}
+    //               disabled={loading}
+    //             >
+    //               {loading ? <LoadingAnimation /> : <Forward size={25} />}
+    //             </button>
+    //           </div>
+    //         </form>
+    //       </>
+    //     ) : (
+    //       <div className="flex-1 flex items-center justify-center">
+    //         <p className="text-black text-lg">
+    //           Select a chat or create a new one to start
+    //         </p>
+    //       </div>
+    //     )}
+    //   </div>
+    //   {sessionExpired && (
+    //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
+    //       <div className="bg-white p-8 rounded-lg shadow-xl w-96">
+    //         <h2 className="text-2xl font-bold mb-4 ">Log In</h2>
+    //         <form onSubmit={handleLogin} className="space-y-4">
+    //           <div>
+    //             <label
+    //               htmlFor="username"
+    //               className="block text-sm font-medium text-gray-700"
+    //             >
+    //               Username
+    //             </label>
+    //             <input
+    //               type="text"
+    //               id="username"
+    //               value={username}
+    //               onChange={(e) => setUsername(e.target.value)}
+    //               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+    //               required
+    //             />
+    //           </div>
+    //           <div>
+    //             <label
+    //               htmlFor="password"
+    //               className="block text-sm font-medium text-gray-700"
+    //             >
+    //               Password
+    //             </label>
+    //             <input
+    //               type="password"
+    //               id="password"
+    //               value={password}
+    //               onChange={(e) => setPassword(e.target.value)}
+    //               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+    //               required
+    //             />
+    //           </div>
+    //           <button
+    //             type="submit"
+    //             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    //           >
+    //             Login
+    //           </button>
+    //         </form>
+    //       </div>
+    //     </div>
+    //   )}
+    // </div>
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Top bar */}
+      <div className="h-14 flex items-center px-4 bg-white border-b border-gray-200 sticky top-0 z-10">
+        <button
+          onClick={toggleSidebar}
+          className="p-2 rounded-full hover:bg-gray-200 text-black md:hidden"
+          aria-label="Toggle sidebar"
+        >
+          <Menu size={24} />
+        </button>
+        <img
+          src="https://mcusercontent.com/68edd03c1700c1bdc714f04d5/images/d096c8ef-178b-741d-e81b-a3c9704a6dfd.png"
+          alt="Logo"
+          width={40}
+          height={40}
+          className="ml-2 md:ml-0"
+        />
+        <h2 className="text-md font-semibold text-black ml-2">
+          Script Generator
+        </h2>
       </div>
 
-      {/* Chat interface */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-          sidebarVisible ? "ml-64" : "ml-0"
-        }`}
-      >
-        {/* Top bar */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar with chats */}
         <div
-          className={`h-14 flex items-center px-4 ${
-            sidebarVisible
-              ? "bg-transparent"
-              : "bg-white border-b border-gray-200"
-          }`}
+          className={`fixed inset-y-14 left-0 z-20 w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ease-in-out ${
+            sidebarVisible ? "translate-x-0" : "-translate-x-full"
+          } md:relative md:inset-y-0 md:translate-x-0`}
         >
-          {!sidebarVisible && (
+          <div className="p-2">
             <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-200 text-black"
-              aria-label="Show sidebar"
+              onClick={createNewChat}
+              className="w-full text-left p-2 rounded-lg mb-2 bg-blue-500 text-white hover:bg-blue-600 flex items-center"
             >
-              <ChevronRight size={24} />
+              <Plus size={20} className="mr-2" />
+              New Chat
             </button>
-          )}
+            {chats.map((chat) => (
+              <button
+                key={chat._id}
+                className={`w-full text-left p-2 rounded-lg mb-2 ${
+                  selectedChat?._id === chat._id
+                    ? "bg-blue-100 text-black"
+                    : "hover:bg-gray-100 text-black"
+                }`}
+                onClick={() => selectChat(chat._id)}
+              >
+                <p className="font-medium truncate">
+                  {chat.initial_message || "New Chat"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {formatTimestamp(chat.timestamp)}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {selectedChat ? (
-          <>
-            {/* Chat messages */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`mb-4 ${
-                    message.message_type === "user" ? "text-right" : "text-left"
-                  }`}
-                >
+        {/* Chat interface */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {selectedChat ? (
+            <>
+              {/* Chat messages */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {messages.map((message, index) => (
                   <div
-                    className={`inline-block p-2 rounded-lg ${
+                    key={index}
+                    className={`mb-4 ${
                       message.message_type === "user"
-                        ? "bg-blue-500 text-white"
-                        : message.message_type === "agent1"
-                          ? "bg-gray-300 text-black"
-                          : "bg-blue-100 text-black"
+                        ? "text-right"
+                        : "text-left"
                     }`}
                   >
-                    <div className="flex items-center mb-1">
-                      {message.message_type === "user" ? (
-                        <User size={16} className="mr-1" />
-                      ) : message.message_type === "agent1" ? (
-                        <Bot size={16} className="mr-1" />
-                      ) : (
-                        <Command size={16} className="mr-1" />
-                      )}
-                      <span className="text-xs">
-                        {formatTimestamp(message.timestamp)}
-                      </span>
-                    </div>
-                    {message.category === "script" ||
-                    message.category === "set" ? (
-                      <div>
-                        <button
-                          onClick={() => toggleExpand(message._id)}
-                          className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {expandedMessages[message._id]
-                            ? `Hide ${message.category === "script" ? "Script" : "Set"}`
-                            : `View ${message.category === "script" ? "Script" : "Set"}`}
-                        </button>
-                        {expandedMessages[message._id] && (
-                          <div className="mt-2 p-4 text-black">
-                            {message.category === "script" ? (
-                              <>
-                                <div className="flex mb-2">
-                                  <button
-                                    className={`mr-2 px-2 py-1 rounded ${
-                                      activeTab === "initial_input"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-black"
-                                    }`}
-                                    onClick={() =>
-                                      setActiveTab("initial_input")
-                                    }
-                                  >
-                                    Initial Input
-                                  </button>
-                                  <button
-                                    className={`mr-2 px-2 py-1 rounded ${
-                                      activeTab === "script"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-black"
-                                    }`}
-                                    onClick={() => setActiveTab("script")}
-                                  >
-                                    Script
-                                  </button>
-                                  <button
-                                    className={`px-2 py-1 rounded ${
-                                      activeTab === "mr_beast_score"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-black"
-                                    }`}
-                                    onClick={() =>
-                                      setActiveTab("mr_beast_score")
-                                    }
-                                  >
-                                    Mr. Beast&aposs Evaluation
-                                  </button>
-                                  <button
-                                    className={`px-2 py-1 rounded ${
-                                      activeTab === "george_blackman_score"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-black"
-                                    }`}
-                                    onClick={() =>
-                                      setActiveTab("george_blackman_score")
-                                    }
-                                  >
-                                    George Blackman&aposs Evaluation
-                                  </button>
-                                </div>
-                                {scripts.map((script) => {
-                                  if (script.script === message.message) {
-                                    return (
-                                      <pre
-                                        key={script._id}
-                                        className="whitespace-pre-wrap font-sans"
-                                      >
-                                        {activeTab === "initial_input"
-                                          ? script.initial_input
-                                          : activeTab === "script"
-                                            ? script.script
-                                            : activeTab === "mr_beast_score"
-                                              ? script.mr_beast_score
-                                              : script.george_blackman_score}
-                                      </pre>
-                                    );
-                                  }
-                                  return null;
-                                })}
-                              </>
-                            ) : (
-                              <pre className="whitespace-pre-wrap font-sans">
-                                {message.message}
-                              </pre>
-                            )}
-                          </div>
+                    <div
+                      className={`inline-block p-2 rounded-lg ${
+                        message.message_type === "user"
+                          ? "bg-blue-500 text-white"
+                          : message.message_type === "agent1"
+                            ? "bg-gray-300 text-black"
+                            : "bg-blue-100 text-black"
+                      }`}
+                    >
+                      <div className="flex items-center mb-1">
+                        {message.message_type === "user" ? (
+                          <User size={16} className="mr-1" />
+                        ) : message.message_type === "agent1" ? (
+                          <Bot size={16} className="mr-1" />
+                        ) : (
+                          <Command size={16} className="mr-1" />
                         )}
+                        <span className="text-xs">
+                          {formatTimestamp(message.timestamp)}
+                        </span>
                       </div>
-                    ) : (
-                      <pre className="whitespace-pre-wrap font-sans">
-                        {message.message}
-                      </pre>
-                    )}
+                      {message.category === "script" ||
+                      message.category === "set" ? (
+                        <div>
+                          <button
+                            onClick={() => toggleExpand(message._id)}
+                            className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+                          >
+                            {expandedMessages[message._id]
+                              ? `Hide ${message.category === "script" ? "Script" : "Set"}`
+                              : `View ${message.category === "script" ? "Script" : "Set"}`}
+                          </button>
+                          {expandedMessages[message._id] && (
+                            <div className="mt-2 p-4 text-black">
+                              {message.category === "script" ? (
+                                <>
+                                  <div className="flex flex-wrap mb-2">
+                                    <button
+                                      className={`mr-2 mb-2 px-2 py-1 rounded ${
+                                        activeTab === "initial_input"
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-black"
+                                      }`}
+                                      onClick={() =>
+                                        setActiveTab("initial_input")
+                                      }
+                                    >
+                                      Initial Input
+                                    </button>
+                                    <button
+                                      className={`mr-2 mb-2 px-2 py-1 rounded ${
+                                        activeTab === "script"
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-black"
+                                      }`}
+                                      onClick={() => setActiveTab("script")}
+                                    >
+                                      Script
+                                    </button>
+                                    <button
+                                      className={`mr-2 mb-2 px-2 py-1 rounded ${
+                                        activeTab === "mr_beast_score"
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-black"
+                                      }`}
+                                      onClick={() =>
+                                        setActiveTab("mr_beast_score")
+                                      }
+                                    >
+                                      Mr. Beast's Evaluation
+                                    </button>
+                                    <button
+                                      className={`mb-2 px-2 py-1 rounded ${
+                                        activeTab === "george_blackman_score"
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-black"
+                                      }`}
+                                      onClick={() =>
+                                        setActiveTab("george_blackman_score")
+                                      }
+                                    >
+                                      George Blackman's Evaluation
+                                    </button>
+                                  </div>
+                                  {scripts.map((script) => {
+                                    if (script.script === message.message) {
+                                      return (
+                                        <pre
+                                          key={script._id}
+                                          className="whitespace-pre-wrap font-sans text-sm"
+                                        >
+                                          {activeTab === "initial_input"
+                                            ? script.initial_input
+                                            : activeTab === "script"
+                                              ? script.script
+                                              : activeTab === "mr_beast_score"
+                                                ? script.mr_beast_score
+                                                : script.george_blackman_score}
+                                        </pre>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </>
+                              ) : (
+                                <pre className="whitespace-pre-wrap font-sans text-sm">
+                                  {message.message}
+                                </pre>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <pre className="whitespace-pre-wrap font-sans text-sm">
+                          {message.message}
+                        </pre>
+                      )}
+                    </div>
+                    <br />
+                    <button
+                      onClick={() => copyToClipboard(message.message, index)}
+                      className={`ml-2 p-1 text-gray-500 hover:text-gray-700 transition-all duration-300`}
+                      aria-label={
+                        copiedIndex === index
+                          ? "Copied to clipboard"
+                          : "Copy to clipboard"
+                      }
+                    >
+                      {copiedIndex === index ? (
+                        <Check size={16} />
+                      ) : (
+                        <Copy size={16} />
+                      )}
+                    </button>
                   </div>
-                  <br />
-                  <button
-                    onClick={() => copyToClipboard(message.message, index)}
-                    className={`ml-2 p-1 text-gray-500 hover:text-gray-700 transition-all duration-300`}
-                    aria-label={
-                      copiedIndex === index
-                        ? "Copied to clipboard"
-                        : "Copy to clipboard"
-                    }
-                  >
-                    {copiedIndex === index ? (
-                      <Check size={16} />
-                    ) : (
-                      <Copy size={16} />
-                    )}
-                  </button>
-                </div>
-              ))}
-              {loading && (
-                <div className="text-left mb-4">
-                  <div className="inline-block p-3 rounded-lg bg-gray-200">
-                    <LoadingAnimation />
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Command suggestions */}
-            <div className="border-t border-gray-200 p-2 bg-gray-50">
-              <p className="text-sm font-medium text-gray-700 mb-1">
-                Available commands:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {COMMANDS.map((cmd) => (
-                  <button
-                    key={cmd.command}
-                    className="px-2 py-1 text-sm bg-white border border-gray-300 rounded-md text-black hover:bg-gray-100"
-                    onClick={() => setInputMessage(cmd.command)}
-                    title={cmd.description}
-                  >
-                    {cmd.command}
-                  </button>
                 ))}
+                {loading && (
+                  <div className="text-left mb-4">
+                    <div className="inline-block p-3 rounded-lg bg-gray-200">
+                      <LoadingAnimation />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
               </div>
-            </div>
 
-            {/* Input area */}
-            <form
-              onSubmit={handleSendMessage}
-              className="border-t border-gray-200 p-4"
-            >
-              <div className="flex items-top">
-                <textarea
-                  ref={textareaRef}
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message... (Shift+Enter for new line)"
-                  className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none text-black resize-none overflow-hidden"
-                  style={{ minHeight: "40px", maxHeight: "120px" }}
-                  disabled={loading}
-                  rows={1}
-                />
-                <button
-                  type="submit"
-                  className={`p-2 bg-blue-500 text-white rounded-r-md ${
-                    loading
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-blue-600"
-                  }`}
-                  disabled={loading}
-                >
-                  {loading ? <LoadingAnimation /> : <Forward size={25} />}
-                </button>
+              {/* Command suggestions */}
+              <div className="border-t border-gray-200 p-2 bg-gray-50">
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Available commands:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {COMMANDS.map((cmd) => (
+                    <button
+                      key={cmd.command}
+                      className="px-2 py-1 text-sm bg-white border border-gray-300 rounded-md text-black hover:bg-gray-100"
+                      onClick={() => setInputMessage(cmd.command)}
+                      title={cmd.description}
+                    >
+                      {cmd.command}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </form>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-black text-lg">
-              Select a chat or create a new one to start
-            </p>
-          </div>
-        )}
+
+              {/* Input area */}
+              <form
+                onSubmit={handleSendMessage}
+                className="border-t border-gray-200 p-4"
+              >
+                <div className="flex items-top">
+                  <textarea
+                    ref={textareaRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message... (Shift+Enter for new line)"
+                    className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none text-black resize-none overflow-hidden"
+                    style={{ minHeight: "40px", maxHeight: "120px" }}
+                    disabled={loading}
+                    rows={1}
+                  />
+                  <button
+                    type="submit"
+                    className={`p-2 bg-blue-500 text-white rounded-r-md ${
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-blue-600"
+                    }`}
+                    disabled={loading}
+                  >
+                    {loading ? <LoadingAnimation /> : <Forward size={25} />}
+                  </button>
+                </div>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-black text-lg">
+                Select a chat or create a new one to start
+              </p>
+            </div>
+          )}
+        </div>
       </div>
+
       {sessionExpired && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-96">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-96 max-w-[90%]">
             <h2 className="text-2xl font-bold mb-4 ">Log In</h2>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
