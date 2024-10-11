@@ -1199,7 +1199,7 @@ export default function ChatbotInterface() {
                                         setActiveTab("mr_beast_score")
                                       }
                                     >
-                                      Mr. Beast's Evaluation
+                                      Mr. Beast&aposs Evaluation
                                     </button>
                                     <button
                                       className={`mb-2 px-2 py-1 rounded ${
@@ -1211,7 +1211,7 @@ export default function ChatbotInterface() {
                                         setActiveTab("george_blackman_score")
                                       }
                                     >
-                                      George Blackman's Evaluation
+                                      George Blackman&aposs Evaluation
                                     </button>
                                   </div>
                                   {scripts.map((script) => {
