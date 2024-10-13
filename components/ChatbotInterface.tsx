@@ -81,8 +81,8 @@ export default function ChatbotInterface() {
 
   useEffect(() => {
     checkSession();
-    const intervalId = setInterval(checkSession, 60000); // Check every minute
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(checkSession, 60000); // Check every minute
+    // return () => clearInterval(intervalId);
   }, []);
 
   const checkSession = async () => {
@@ -92,10 +92,8 @@ export default function ChatbotInterface() {
       );
       const data = await response.json();
       if (data.success) {
-        const expiryTime = new Date(data.expiry).getTime();
-        if (expiryTime < Date.now()) {
-          setSessionExpired(true);
-        }
+        setSessionExpired(!data.session_active);
+        console.log(data);
       }
     } catch (error) {
       console.error("Error checking session:", error);
@@ -109,10 +107,20 @@ export default function ChatbotInterface() {
       const envPassword = process.env.NEXT_PUBLIC_PASSWORD;
 
       if (envUsername == username && envPassword == password) {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/users/sessions`, {
-          method: "POST",
-        });
-        setSessionExpired(false);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND}/users/sessions`,
+          {
+            method: "POST",
+          }
+        );
+
+        // Check if the request was successful
+        if (response.ok) {
+          setSessionExpired(false);
+        } else {
+          const errorData = await response.json();
+          alert(`Login failed: ${errorData.detail}`);
+        }
       } else {
         alert("Invalid credentials");
       }
