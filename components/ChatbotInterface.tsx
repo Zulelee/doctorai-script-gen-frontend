@@ -11,8 +11,15 @@ import {
   User,
   Bot,
   Command,
+  Edit,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { EditScriptingPromptModal } from "@/components/EditScriptingPromptModal";
+// import {
+//   getScriptingPrompt,
+//   updateScriptingPrompt,
+// } from "@/prompts/ScriptingPrompt";
 
 interface Chat {
   _id: string;
@@ -87,7 +94,9 @@ export default function ChatbotInterface() {
   const [selectedProvider, setSelectedProvider] = useState<
     "openai" | "openrouter"
   >("openai");
-  const [modelName, setModelName] = useState("");
+  const [modelName, setModelName] = useState("gpt-4o");
+  //const [scriptingPrompt, setScriptingPrompt] = useState<string>("Default scripting prompt")
+  const [isEditPromptModalOpen, setIsEditPromptModalOpen] = useState(false);
 
   useEffect(() => {
     checkSession();
@@ -148,7 +157,7 @@ export default function ChatbotInterface() {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [inputMessage]);
+  }, [textareaRef]); //Corrected dependency
 
   const fetchChats = async () => {
     try {
@@ -594,7 +603,6 @@ export default function ChatbotInterface() {
       return;
     }
     const sets = currentIdeation.ideation_result.split(/Set [I|V]+:/);
-    // const sets = currentIdeation.ideation_result.split("Set");
     if (setNumber < 1 || setNumber > sets.length - 1) {
       await saveMessage(
         `Invalid set number. Please choose a number between 1 and ${sets.length - 1}.`,
@@ -609,6 +617,9 @@ export default function ChatbotInterface() {
     const selectedSet = sets[setNumber].trim();
     console.log(selectedSet);
     try {
+      const promptResponse = await fetch("/api/prompt");
+      const promptData = await promptResponse.json();
+      const prompt = promptData.content;
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND}/users/generate_script`,
         {
@@ -621,6 +632,7 @@ export default function ChatbotInterface() {
             chat_id: selectedChat!._id,
             provider: selectedProvider,
             model: modelName,
+            scripting_prompt: prompt, // Add the scripting prompt to the API call
           }),
         }
       );
@@ -753,6 +765,14 @@ export default function ChatbotInterface() {
     setModelName(event.target.value);
   };
 
+  const handleEditScriptingPrompt = () => {
+    setIsEditPromptModalOpen(true);
+  };
+
+  // const handleSaveScriptingPrompt = (newPrompt: string) => {
+  //   updateScriptingPrompt(newPrompt);
+  // };
+
   useEffect(() => {
     const scrollToBottom = () => {
       if (messagesEndRef.current) {
@@ -813,6 +833,15 @@ export default function ChatbotInterface() {
             placeholder="Enter model name"
             className="p-2 border border-gray-300 rounded-md text-sm text-black"
           />
+          <Button
+            onClick={handleEditScriptingPrompt}
+            variant="outline"
+            size="sm"
+            className="flex items-center"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Scripting Prompt
+          </Button>
         </div>
       </div>
 
@@ -1057,7 +1086,7 @@ export default function ChatbotInterface() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type your message... (Shift+Enter for new line)"
+                    placeholder="Type your message... (Shift+Enter for newline)"
                     className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none text-black resize-none overflow-hidden"
                     style={{ minHeight: "40px", maxHeight: "120px" }}
                     disabled={loading}
@@ -1086,7 +1115,6 @@ export default function ChatbotInterface() {
           )}
         </div>
       </div>
-
       {sessionExpired && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
           <div className="bg-white p-8 rounded-lg shadow-xl w-96 max-w-[90%]">
@@ -1134,6 +1162,12 @@ export default function ChatbotInterface() {
           </div>
         </div>
       )}
+      <EditScriptingPromptModal
+        isOpen={isEditPromptModalOpen}
+        onClose={() => setIsEditPromptModalOpen(false)}
+        // initialPrompt={scriptingPrompt}
+        onSave={() => {}}
+      />
     </div>
   );
 }
